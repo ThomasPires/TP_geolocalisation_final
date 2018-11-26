@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
 
         distance_parcourue = 0;
 
+        lastLocation = null;
+
         myFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         myLocationCallback = new LocationCallback() {
@@ -112,11 +114,15 @@ public class MainActivity extends AppCompatActivity {
         get_address.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 try {
-                    List<Address> addresses = geocoder.getFromLocation(lastLocation.getLatitude(), lastLocation.getLongitude(), 1);
-                    Address obj = addresses.get(0);
+                    if(lastLocation != null) {
+                        List<Address> addresses = geocoder.getFromLocation(lastLocation.getLatitude(), lastLocation.getLongitude(), 1);
+                        Address obj = addresses.get(0);
 
-                    String add = obj.getAddressLine(0) + "," + obj.getAdminArea() + "," + obj.getCountryName();
-                    print_address.setText(add);
+                        String add = obj.getAddressLine(0) + "," + obj.getAdminArea() + "," + obj.getCountryName();
+                        print_address.setText(add);
+                    } else {
+                        print_address.setText("Aucune localisation fournie");
+                    }
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -142,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
             myFusedLocationClient.requestLocationUpdates(mLocationRequest, myLocationCallback, Looper.myLooper());
         else {
             print_loc.setText("permission non autorisée");
+            started = false;
             ActivityCompat.requestPermissions(this,
                     new String[]{this.permissionLocation},
                     1);
